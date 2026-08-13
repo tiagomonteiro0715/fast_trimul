@@ -1,0 +1,24 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "fast_trimul"
+version = "0.0.1"
+description = "Fused Triangle Multiplicative Update (AlphaFold/OpenFold) on CUTLASS CuTe DSL kernels."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Tiago Monteiro" }]
+keywords = ["alphafold", "openfold", "triangle-multiplication", "cutlass", "cute", "gpu-kernel"]
+dependencies = [
+    "torch>=2.2",
+    "nvidia-cutlass-dsl",
+    "cuda-python",
+]
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["fast_trimul"]
