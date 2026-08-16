@@ -1,12 +1,54 @@
-# fast_trimul
+<h1 align="center">fast_trimul</h1>
 
-[![PyPI](https://img.shields.io/pypi/v/fast_trimul)](https://pypi.org/project/fast_trimul/)
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![Python](https://img.shields.io/pypi/pyversions/fast_trimul)](https://pypi.org/project/fast_trimul/)
+<p align="center">
+  <strong>Fused Triangle Multiplicative Update (AlphaFold2 / AlphaFold3 family) on hand-written CUTLASS CuTe DSL kernels — a drop-in <code>nn.Module</code> for the structural-biology stacks.</strong>
+</p>
 
-Fused **Triangle Multiplicative Update** (AlphaFold2 / AlphaFold3 family) built on
-hand-written **CUTLASS CuTe DSL** kernels — a drop-in `nn.Module` for the
-structural-biology stacks (OpenFold, OpenFold-3, Boltz, Chai, Protenix).
+<p align="center">
+  <a href="https://pypi.org/project/fast_trimul/"><img src="https://img.shields.io/pypi/v/fast_trimul" alt="PyPI"/></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License: Apache 2.0"/></a>
+  <a href="https://pypi.org/project/fast_trimul/"><img src="https://img.shields.io/pypi/pyversions/fast_trimul" alt="Python"/></a>
+  <img src="https://img.shields.io/github/stars/tiagomonteiro0715/fast_trimul" alt="Stars"/>
+  <img src="https://img.shields.io/github/forks/tiagomonteiro0715/fast_trimul" alt="Forks"/>
+  <img src="https://img.shields.io/github/last-commit/tiagomonteiro0715/fast_trimul" alt="Last Commit"/>
+</p>
+
+<p align="center">
+  Works with <strong>OpenFold, OpenFold-3, Boltz, Chai, and Protenix</strong>.
+</p>
+
+## Star History
+
+<a href="https://www.star-history.com/#tiagomonteiro0715/fast_trimul&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=tiagomonteiro0715/fast_trimul&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=tiagomonteiro0715/fast_trimul&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=tiagomonteiro0715/fast_trimul&type=Date" />
+ </picture>
+</a>
+
+---
+
+## Table of Contents
+- [Why fast_trimul?](#why-fast_trimul)
+- [Quickstart: accelerate OpenFold-3 in one line](#quickstart-accelerate-openfold-3-in-one-line)
+- [Install](#install)
+- [Quick start](#quick-start)
+- [Swap into a real model (whole-trunk example)](#swap-into-a-real-model-whole-trunk-example)
+- [Gradients (training)](#gradients-training)
+- [Benchmark](#benchmark)
+- [Architecture](#architecture)
+- [API](#api)
+- [Limitations](#limitations-read-before-relying-on-it)
+- [Contributing](#contributing)
+- [Related Resources](#related-resources)
+- [Built With](#built-with)
+- [Contact](#contact)
+- [License](#license)
+
+---
+
+## Why fast_trimul?
 
 - **Numerically matches** the stock module (fp16 tolerance) — verified against
   OpenFold, OpenFold-3, Boltz-1, Protenix, and an AF3/Chai-style reference by
@@ -21,7 +63,7 @@ structural-biology stacks (OpenFold, OpenFold-3, Boltz, Chai, Protenix).
   New hardware (TPU/Intel/…) is a plug-in, not a rewrite.
 - **Drop-in on any shape, no whole-model compilation.**
 
-## Quickstart: accelerate OpenFold-3 in one line ✅
+## Quickstart: accelerate OpenFold-3 in one line
 
 One line — `patch_openfold3()` — swaps OpenFold-3's TriMul for the fast kernel
 *before* you build the model. **This exact script is verified on an NVIDIA A100 —
@@ -386,7 +428,46 @@ fallback chain — no changes to the dispatcher or the module.
   a CUTLASS module). `import fast_trimul` itself is lazy and does not require CUTLASS
   until you construct `FastTriangleMultiplication`.
 
+## Contributing
+
+Contributions, bug reports, and benchmark numbers from your own hardware are welcome!
+
+- **Found a bug, a shape that falls back unexpectedly, or a stack whose weights
+  don't remap?** Open an issue, or reach out at monteiro.t@northeastern.edu.
+- **Added a new backend or a `@weights_for` map for another library?** Send a pull
+  request — a new backend or weight-map is one decorated class/function and needs no
+  changes to the core (see *Architecture → Adding a new backend*).
+- **Enjoyed it?** Star the repository — it helps others find the project.
+
+## Related Resources
+
+- [The Math Behind Artificial Intelligence](https://github.com/tiagomonteiro0715/The-Math-Behind-Artificial-Intelligence-A-Guide-to-AI-Foundations) — a guide to AI's mathematical foundations from an engineering perspective.
+- [My FreeCodeCamp Articles](https://www.freecodecamp.org/news/author/tiagomonteiro) — tutorials and deep dives on AI and programming.
+- [Signal Processing Guide](https://github.com/tiagomonteiro0715/Signal-Processing-and-Systems-in-Programming-Guide-for-Beginners) — companion resource on signal processing.
+
+## Built With
+
+- **Python** — the front-end, dispatcher, backends, and integrations.
+- [**NVIDIA CUTLASS CuTe DSL**](https://github.com/NVIDIA/cutlass) — the fused GEMM / kernel core.
+- [**PyTorch**](https://pytorch.org/) — tensors, autograd, and CUDA-graph capture.
+- [**cuda-python**](https://github.com/NVIDIA/cuda-python) — the driver bindings the kernels launch through.
+- [**uv**](https://github.com/astral-sh/uv) — fast Python package installer used throughout the docs.
+
+## Contact
+
+**Tiago Monteiro**
+- Email: monteiro.t@northeastern.edu
+- GitHub: [@tiagomonteiro0715](https://github.com/tiagomonteiro0715)
+- FreeCodeCamp: [Author Profile](https://www.freecodecamp.org/news/author/tiagomonteiro)
+
 ## License
 
 Apache License 2.0 (this project) — see [LICENSE](LICENSE). The GEMM core is
 derived from NVIDIA CUTLASS and is licensed under BSD 3-Clause — see [NOTICE](NOTICE).
+
+---
+
+<p align="center">
+  If you find <code>fast_trimul</code> useful, please consider starring the repository!<br>
+  Your support helps others discover this project.
+</p>
