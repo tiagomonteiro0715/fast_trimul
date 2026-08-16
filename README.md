@@ -69,6 +69,14 @@ read *Limitations* for where `torch.compile` is the better choice.
 ```bash
 pip install fast_trimul          # or: uv pip install fast_trimul
 ```
+
+Or install the latest straight from GitHub (no PyPI release needed — pure-Python
+package, so there's no compile step):
+
+```bash
+pip install git+https://github.com/tiagomonteiro0715/fast_trimul
+```
+
 Requires a **CUDA GPU**, `torch`, `nvidia-cutlass-dsl`, and `cuda-python`.
 Kernels JIT-compile on first use (one-time cost, then cached in-process).
 
