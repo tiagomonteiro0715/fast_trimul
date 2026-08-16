@@ -1,7 +1,7 @@
 <h1 align="center">fast_trimul</h1>
 
 <p align="center">
-  <strong>Fused Triangle Multiplicative Update (AlphaFold2 / AlphaFold3 family) on hand-written CUTLASS CuTe DSL kernels — a drop-in <code>nn.Module</code> for the structural-biology stacks.</strong>
+  <strong>Fused Triangle Multiplicative Update (AlphaFold2 / AlphaFold3 family) on CUTLASS CuTe DSL kernels — a drop-in <code>nn.Module</code> for the structural-biology stacks. Hardware Agnostic library!</strong>
 </p>
 
 <p align="center">
@@ -70,11 +70,11 @@ One line — `patch_openfold3()` — swaps OpenFold-3's TriMul for the fast kern
 both Lightning AI and Google Colab:**
 
 ```bash
-uv pip install --system openfold3 "fast_trimul>=2.1.2" "cuda-python<13"
+uv pip install --system openfold3 fast_trimul "cuda-python<13"
 ```
 ```python
 import fast_trimul
-fast_trimul.patch_openfold3()          # <-- that's it. OpenFold-3 now runs on the fast kernel.
+fast_trimul.patch_openfold3()          # <-- That is it!! OpenFold-3 now runs on the fast kernel.
 
 # build and run OpenFold-3 exactly as you always would:
 import torch
@@ -85,7 +85,7 @@ model = PairFormerStack(c_s=384, c_z=128, no_blocks=8, c_hidden_pair_bias=32, no
                         transition_type="swiglu", transition_n=4, pair_dropout=0.25,
                         fuse_projection_weights=False, blocks_per_ckpt=None, inf=1e9).cuda().eval()
 
-N = 256
+N = 64
 s = torch.randn(1, N, 384, device="cuda")
 z = torch.randn(1, N, N, 128, device="cuda")
 with torch.no_grad():
@@ -99,7 +99,9 @@ Same one-liner for the other stacks: `patch_openfold()`, `patch_boltz()`,
 fake-`scipy` shim so OpenFold-3 imports without Colab's numpy quirk; the
 `patch_openfold3()` integration is identical).
 
-Prefer no global patch? Use the module directly (`FastTriangleMultiplication`, see
+#### Prefer no global patch? 
+
+Use the module directly (`FastTriangleMultiplication`, see
 *Quick start*), and use `@accelerate` / `with accelerated("cuda"):` to pin which
 **backend** runs your own code (they control cuda-vs-torch selection, not the swap).
 
@@ -255,7 +257,7 @@ for m in model.modules():
 
 Install for this example (note the CUDA-12 driver pin — see *Install*):
 ```bash
-uv pip install --system openfold3 "fast_trimul>=2.0.0" "cuda-python<13"
+uv pip install --system openfold3 fast_trimul "cuda-python<13"
 ```
 
 ### Whole-trunk results (OpenFold-3 Pairformer, 8 blocks)
