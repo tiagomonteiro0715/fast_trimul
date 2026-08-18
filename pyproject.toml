@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "fast_trimul"
-version = "3.0.3"
+version = "3.0.4"
 description = "Fused Triangle Multiplicative Update (AlphaFold/OpenFold) on CUTLASS CuTe DSL kernels."
 readme = "README.md"
 requires-python = ">=3.10"
