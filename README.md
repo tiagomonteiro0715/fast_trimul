@@ -514,7 +514,7 @@ That one file makes `backend="mybackend"` selectable and slots it into the fallb
 - **Backward is correct but not fast** (torch recompute), so it helps inference
   more than training throughput.
 
-- **The CUDA kernel is Ampere (sm80) tested; fp16 only.** On other hardware, or for
+- **The CUDA kernel is Ampere (sm80) tested** On other hardware, or for
   bf16/fp32, or non-multiple-of-8 `N`, the dispatcher falls back to the pure-torch
   backend (correct, slower). Hopper/Blackwell + fp8 are future work.
 
