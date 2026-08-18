@@ -110,7 +110,7 @@ Fastest on short sequences, running 4.5–6.8× quicker than the plain layer at 
 
 **Also, the library runs anywhere without crashing by using a fast CUTLASS kernel when supported and falling back to a plain PyTorch version for unusual shapes or data types.**
 
-Supporting new hardware like TPUs or Intel GPUs requires only a small add-on rather than a library rewrite.
+Supporting new hardware like TPUs or Intel GPUs requires only a  add-on rather than a complete library rewrite.
 
 ## Benchmark results
 
