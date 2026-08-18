@@ -1,7 +1,7 @@
 <h1 align="center">fast_trimul</h1>
 
 <p align="center">
-  <strong>A drop-in, hardware-agnostic library for Fused Triangle Multiplicative Updates across AlphaFold3 family models, powered by CuTe DSL.</strong>
+  <strong>A drop-in, hardware-agnostic library for Fused Triangle Multiplicative Updates across AlphaFold3 family models, powered by CuTe DSL</strong>
 </p>
 
 <p align="center">
