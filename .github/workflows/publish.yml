@@ -1,0 +1,38 @@
+name: Publish to PyPI
+
+# Fires when a version tag (e.g. v2.4.31) is pushed -- that's what release.bat does.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build sdist + wheel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/*
+
+  publish:
+    name: Publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write        # PyPI Trusted Publishing (OIDC) -- no API token stored
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        # --- To use an API token instead of Trusted Publishing: ---
+        # 1. delete the `environment:` and `permissions:` blocks above,
+        # 2. add repo secret PYPI_API_TOKEN, and uncomment:
+        # with:
+        #   password: ${{ secrets.PYPI_API_TOKEN }}

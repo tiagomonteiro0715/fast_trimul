@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-test:
+    name: lint + CPU tests (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+
+      # CPU tests never build the CUDA kernel, so we only need CPU torch + the
+      # pure-Python package (installed --no-deps to skip the heavy GPU deps).
+      - name: Install
+        run: |
+          uv pip install --system torch \
+            --index-url https://download.pytorch.org/whl/cpu \
+            --extra-index-url https://pypi.org/simple
+          uv pip install --system pytest "ruff==0.15.8"
+          uv pip install --system --no-deps .
+
+      - name: Ruff
+        run: ruff check .
+
+      # GPU tests carry the `gpu` marker and are excluded here; they show up as
+      # deselected. A green CI means "CPU checks passed", not "everything passed".
+      - name: CPU tests
+        run: pytest -m "not gpu" -v

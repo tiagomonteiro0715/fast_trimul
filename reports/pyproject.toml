@@ -1,0 +1,15 @@
+[project]
+name = "trimul-figures"
+version = "0.1.0"
+description = "Nature-style speed and VRAM figures from the fast_trimul benchmark tables."
+requires-python = ">=3.9"
+dependencies = [
+    "matplotlib>=3.7",
+    "pandas>=2.0",
+    "scienceplots>=2.1",
+]
+
+# `main.py` is a standalone script, not an installable package, so tell uv not to
+# try to build this project -- it only needs to install the dependencies above.
+[tool.uv]
+package = false
