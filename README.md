@@ -1,7 +1,7 @@
 <h1 align="center">fast_trimul</h1>
 
 <p align="center">
-  <strong>A drop-in, hardware-agnostic library for Fused Triangle Multiplicative Updates across AlphaFold3-family models, powered by CuTe DSL.</strong>
+  <strong>A drop-in, hardware-agnostic library for Fused Triangle Multiplicative Updates across AlphaFold3 family models, powered by CuTe DSL.</strong>
 </p>
 
 <p align="center">
@@ -491,7 +491,7 @@ That one file makes `backend="mybackend"` selectable and slots it into the fallb
 ## Limitations (read before relying on it)
 
 - **`torch.compile(mode="reduce-overhead")` is competitive and often faster above
-  small N.** On an A100 it is frequently faster per call in the mid-range and, on
+  small N.** On an A100 it is often faster per call in the mid-range and, on
   several stacks, uses similar peak memory. These kernels are not yet epilogue-fused
   (future work), so the reasons to prefer this are **drop-in-ness and robustness**,
   not raw latency: `reduce-overhead` needs *static* shapes and **recompiles for
