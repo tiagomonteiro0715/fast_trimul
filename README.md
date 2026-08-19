@@ -19,7 +19,7 @@
 
 ## At a glance
 
-*This runs the real **OpenFold-3** code with `fast_trimul`! 
+This runs the real **OpenFold-3** code with `fast_trimul`! 
 
 Just 1 line swap from the [Quickstart](#quickstart-accelerate-openfold-3-in-one-line),
 with a ready-to-run `quickstart_lightning` code example included. 
