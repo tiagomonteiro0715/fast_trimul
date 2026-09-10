@@ -24,8 +24,9 @@ torch.set_float32_matmul_precision("high")
 DEV = "cuda"
 B, D_Z, D_C = 1, 128, 128
 
-# sizes: a short ramp, then the long queries the reviewer asked about (> 2000).
-SWEEP = [256, 512, 1024, 2048, 3072, 4096]
+# sizes: small N (where the fused kernel + CUDA graph win on launch overhead),
+# then the long queries the reviewer asked about (> 2000).
+SWEEP = [8, 16, 32, 64, 128, 256, 512, 1024, 2048, 3072, 4096]
 ODD_N = 2001                      # not a multiple of 8 -> exercises the pad path
 
 
@@ -93,43 +94,63 @@ def correctness_check():
 
 
 def sweep():
+    import fast_trimul
+    has_cueq = "cueq" in fast_trimul.list_backends()   # real cueq backend, not a torch stand-in
+    order = ["OF3 base", "OF3+comp", "fast+graph", "fast eager", "fast torch"]
+    if has_cueq:
+        order.append("fast cueq")
+    else:
+        print("note: cueq backend not registered (cuequivariance op unavailable) -> "
+              "column omitted so it isn't confused with the torch fallback.\n")
+
     print(f"GPU: {torch.cuda.get_device_name(0)}  |  torch {torch.__version__} / CUDA {torch.version.cuda}")
-    print(f"{'N':>5} | {'metric':<10}"
-          f"{'OF3 base':>12}{'OF3+comp':>12}{'fast cuda':>12}{'fast cueq':>12}{'fast torch':>12}")
-    print("-" * 77)
+    print("fast+graph = fast_trimul with CUDA-graph capture (its headline inference mode); "
+          "fast eager = same kernel, no graph; OF3+comp = torch.compile reduce-overhead.\n")
+    print(f"{'N':>5} | {'metric':<10}" + "".join(f"{c:>12}" for c in order))
+    print("-" * (18 + 12 * len(order)))
+
     for n in SWEEP:
         z = torch.randn(B, n, n, D_Z, device=DEV)
         mask = torch.ones(B, n, n, device=DEV)
         of3 = build_openfold3()
+
+        def timed(build_fn, graph=False):
+            """Build a fresh module, optionally capture a CUDA graph, time it."""
+            try:
+                m = build_fn()
+                if graph:
+                    m.graphed(z, mask)
+                with torch.no_grad():
+                    return bench(lambda: m(z, mask))
+            except torch.cuda.OutOfMemoryError:
+                torch.cuda.empty_cache(); return (float("inf"), float("inf"))
+            except Exception:
+                return (float("nan"), float("nan"))
+
         cols = {}
-        cands = {
-            "OF3 base":   (lambda m=of3: m(z, mask=mask)) if of3 is not None else None,
-            "OF3+comp":   None,
-            "fast cuda":  lambda m=fast_module("cuda"):  m(z, mask),
-            "fast cueq":  lambda m=fast_module("cueq"):  m(z, mask),
-            "fast torch": lambda m=fast_module("torch"): m(z, mask),
-        }
+        cols["OF3 base"] = (float("nan"), float("nan"))
+        cols["OF3+comp"] = (float("nan"), float("nan"))
         if of3 is not None:
-            comp = torch.compile(of3, mode="reduce-overhead")
-            cands["OF3+comp"] = lambda: comp(z, mask=mask)
-        for name, fn in cands.items():
-            if fn is None:
-                cols[name] = (float("nan"), float("nan")); continue
             try:
                 with torch.no_grad():
-                    cols[name] = bench(fn)
-            except torch.cuda.OutOfMemoryError:
-                cols[name] = (float("inf"), float("inf"))
-                torch.cuda.empty_cache()
+                    cols["OF3 base"] = bench(lambda: of3(z, mask=mask))
+                comp = torch.compile(of3, mode="reduce-overhead")
+                with torch.no_grad():
+                    cols["OF3+comp"] = bench(lambda: comp(z, mask=mask))
             except Exception:
-                cols[name] = (float("nan"), float("nan"))
-        order = ["OF3 base", "OF3+comp", "fast cuda", "fast cueq", "fast torch"]
+                pass
+        cols["fast+graph"] = timed(lambda: fast_module("cuda"), graph=True)
+        cols["fast eager"] = timed(lambda: fast_module("cuda"), graph=False)
+        cols["fast torch"] = timed(lambda: fast_module("torch"), graph=False)
+        if has_cueq:
+            cols["fast cueq"] = timed(lambda: fast_module("cueq"), graph=False)
+
         print(f"{n:>5} | {'ms/call':<10}" + "".join(f"{cols[k][0]:>12.2f}" for k in order))
         print(f"{'':>5} | {'peak GB':<10}" + "".join(f"{cols[k][1]:>12.2f}" for k in order))
-        del z, mask, of3, cands, cols; gc.collect()
+        del z, mask, of3; gc.collect()
         torch.compiler.reset(); torch.cuda.empty_cache()
-    print("\nnan = unavailable/mismatch, inf = OOM. 'fast cueq' appears only when "
-          "cuequivariance-torch is installed; otherwise the dispatcher skips it.")
+    print("\nnan = unavailable, inf = OOM. Compare fast+graph vs OF3+comp -- both are "
+          "CUDA-graph based, so that's the fair head-to-head.")
 
 
 if __name__ == "__main__":
