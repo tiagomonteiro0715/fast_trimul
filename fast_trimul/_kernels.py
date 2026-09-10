@@ -522,6 +522,14 @@ class TriangleMultiplicativeUpdateKernelFused(nn.Module):
         a = gate(pa, self.proj_a.bias, ga, self.gate_a.bias)
         pb, gb = _proj_gate(z_norm, self.proj_b, self.gate_b)      # one wider GEMM
         b = gate(pb, self.proj_b.bias, gb, self.gate_b.bias)
+        pad_n = getattr(self, '_pad_n', None)                      # padded-input guard
+        if pad_n is not None:
+            # zero the padded rows of the contraction dim k so bias-carrying pad
+            # positions never leak into the valid output (see cuda backend).
+            if self.mode == 'outgoing':
+                a[:, :, pad_n:, :] = 0; b[:, :, pad_n:, :] = 0     # k = dim 2
+            else:
+                a[:, pad_n:, :, :] = 0; b[:, pad_n:, :, :] = 0     # k = dim 1
         m = outgoing(a, b) if self.mode == 'outgoing' else incoming(a, b)
         m_norm = layer_norm(m, self.norm_out.weight, self.norm_out.bias, self.norm_out.eps)
         gp, y = self.proj_g.raw(z_norm), self.proj_out.raw(m_norm)

@@ -12,3 +12,8 @@ try:
     from . import cuda_cute   # noqa: F401  registers "cuda"
 except Exception:             # pragma: no cover - keep torch fallback usable
     pass
+
+try:
+    from . import cueq_kernel   # noqa: F401  registers "cueq" (needs cuequivariance)
+except Exception:               # pragma: no cover - optional; chain skips it if absent
+    pass

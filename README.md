@@ -196,8 +196,9 @@ pip install git+https://github.com/tiagomonteiro0715/fast_trimul
 
 | | Hardware / precision / shape |
 |---|---|
-| **Fast path** (CUTLASS kernel) | NVIDIA **Ampere** (A100, RTX 3090/4090), fp16, N divisible by 8 |
-| **Pure-torch fallback** (always correct) | Everything else: Hopper/Blackwell, non-Ampere GPUs, CPU, TPU, bf16/fp32, or N not divisible by 8 |
+| **Fast path** (CUTLASS kernel) | NVIDIA **Ampere** (A100, RTX 3090/4090), fp16, any N (N not divisible by 8 is padded up to the next multiple of 8, then sliced back) |
+| **cuEquivariance fallback** (optional) | Installed `cuequivariance-torch`: tried before pure torch when the CUTLASS path can't run |
+| **Pure-torch fallback** (always correct) | Everything else: Hopper/Blackwell, non-Ampere GPUs, CPU, TPU, bf16/fp32 |
 
 **Driver note:** `cuda-python` must match your CUDA **driver** (it can be newer than the runtime, never older). If `nvidia-smi`
 shows CUDA 12.x :

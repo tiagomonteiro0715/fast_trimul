@@ -22,7 +22,7 @@ def _order(device, prefer: str) -> list:
     if prefer != "auto":
         return [prefer] + (["torch"] if prefer != "torch" else [])
     if getattr(device, "type", None) == "cuda":
-        return ["cuda", "torch"]        # cuda -> torch
+        return ["cuda", "cueq", "torch"]   # cuda -> cuequivariance -> torch
     return ["torch"]
 
 
