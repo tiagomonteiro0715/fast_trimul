@@ -20,7 +20,8 @@ def test_order_auto_on_cpu():
 
 
 def test_order_auto_on_cuda_device():
-    assert dispatch._order(torch.device("cuda"), "auto") == ["cuda", "torch"]
+    # cuda first, then the optional cuEquivariance backend, then the torch floor.
+    assert dispatch._order(torch.device("cuda"), "auto") == ["cuda", "cueq", "torch"]
 
 
 def test_run_dispatches_to_chosen_backend():
